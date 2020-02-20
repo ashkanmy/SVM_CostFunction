@@ -1,0 +1,181 @@
+%
+
+% ---------------------------------------------------------------------------------------------------------------------------------
+% -- /home/yarahmadi/work/ConvexOptim/2017/alle/activities/papers/1D_Perspective/Michael_Needs --
+% ---------------------------------------------------------------------------------------------------------------------------------
+
+\documentclass[a4paper,11pt]{article}
+% python code
+\usepackage{listings}
+
+% graphics
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{width=4.5cm,compat=1.12}
+\usepgfplotslibrary{fillbetween}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{graphicx,amssymb,amsmath}
+\usepackage{epsfig,float}
+\usepackage{pstricks,pst-node,pst-text,pst-3d}
+%\usepackage{showlabels} %---> showing labels
+%\usepackage{color} % ---> text in color
+\usepackage{xfrac} % ---> / fraction
+\usepackage{mathtools} % \coloneqq
+\usepackage{algorithmic} %---> algorithm
+\usepackage{algorithm}
+\usepackage{booktabs}
+\allowdisplaybreaks % break formulas across pages
+\usepackage{cancel} % cancel terms
+\usepackage{ulem} % cancel terms
+
+\usepackage{mathtools}
+\usepackage{tikz,tikz-3dplot}
+\usepackage{pgfplots}
+\usepackage[ngerman]{babel}  
+
+\usepackage{graphics}
+\usepackage{tikz}
+\pgfplotsset{compat=1.10}
+\usepgfplotslibrary{fillbetween}
+
+\usepackage{fontawesome} % light symbol in figure
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{xfrac}
+\newtheorem{lema}{Lemma}[subsection] 
+\newtheorem{theo}{Theorem}[subsection] 
+\newtheorem{prop}{Proposition}[subsection] 
+\newtheorem{defin}{Definition}[subsection]
+\newtheorem{examp}{Example}[subsection] 
+\newtheorem{coroll}{Corollary}[subsection] 
+\newtheorem{proof}{Proof}[subsection] 
+\usepackage[page,toc]{appendix}
+\allowdisplaybreaks %allow big equations to break over pages.
+%--
+\usepackage{color, colortbl} %table probability
+\definecolor{Gray}{gray}{0.9}
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\usepackage[first=0,last=9]{lcg}
+\newcommand{\ra}{\rand0.\arabic{rand}}
+%---
+
+%--breal aligned text (normal vector)
+\usepackage{amsmath}     
+\newcommand{\dd}[1]{\mathrm{d}#1}      
+\allowdisplaybreaks 
+%---------------
+\begin{document}
+%--------------- 
+\title{
+Support vector machine$\colon$A quick look on cost function
+}
+\maketitle
+%-----------------------------------
+\section{Hinge Loss Function}\label{sec-1}
+%-----------------------------------
+It is written as
+%
+\begin{equation}
+	\mathcal{H}\left(x,y,f\left(x\right)\right)=
+	\begin{cases}
+       0                                 , & \text{if }         y f\left(x\right) \geq 1\\
+       1-y f\left(x\right)          , & \text{otherwise}
+	\end{cases}
+\label{eq:1}
+\end{equation}
+%
+with $x\in\mathbb{R}^n$ and $y\in\left\{-1,+1\right\}$ to be the training samples and their corresponding labels. Here, $f\left(x\right)\coloneqq\left<x\cdot w\right>\in\left\{-1,+1\right\}$ is the predicted label of the training sample $x$. Here, $w\in\mathbb{R}^n$, with $n$ and $m$ defined in $\mathbb{N}$.
+%-----------------------------------
+\section{Objective Function}\label{sec-2}
+%-----------------------------------
+Based on~\eqref{eq:1}, support vector machine (SVM) objective's function is written as
+%
+\begin{equation}
+\min_{w}{\left(\lambda\left\|w\right\|^2+\sum_{i=1}^{n}{\mathcal{H}
+         \left(x,y,\overbrace{f\left(x\right)}^{\coloneqq\left<x\cdot w\right>}\right)}\right)}
+\label{eq:2}         
+\end{equation}
+%
+with $\lambda\in\left(0,+\infty\right)$.
+%----------------------------
+\section{Optimization}\label{sec-3}
+%----------------------------
+To optimize~\eqref{eq:2}, we need its derivatives
+%
+\begin{equation}
+\frac{\partial}{\partial w}
+\left(
+\min_{w}{
+           \left(
+           \lambda\left\|w\right\|^2 +
+           \sum_{i=1}^{n}
+           {
+           \mathcal{H}
+           \left(x,y,f\left(x\right)\right)
+           }
+           \right)
+        }
+\right)
+\label{eq:3}
+\end{equation}
+%
+that can be taken separately as 
+%
+\begin{equation}
+\frac{\partial}{\partial w_{k}}
+\left(
+	\lambda\left\|w\right\|^2
+\right)= 2\lambda w_{k}
+\label{eq:4}
+\end{equation}
+%
+and
+%
+\begin{equation}
+\frac{\partial}{\partial w_{k}}
+\left(
+	\mathcal{H}\left(x,y,f\left(x\right)\right)
+\right)
+= 
+\begin{cases}
+   0 , & \text{if }  y_i \left<x_i\cdot w_{k}\right> \geq 1\\
+   -y_i x_i , & \text{otherwise}
+\end{cases}
+\label{eq:5}
+\end{equation}
+%
+with $k\in\left\{1,\cdots,n\right\}$ leading us to the below stochastic gradient descent updation rules
+%
+\begin{equation}
+w_k=w_k - \eta \left( 2\lambda w_k - \left<x_i\cdot w_{k}\right> \right)
+\label{eq:6}
+\end{equation}
+%
+if $y_i \left<x_i\cdot w_{k}\right> < 1$ and otherwise
+%
+\begin{equation}
+w_k=w_k - \eta \left( 2\lambda w_k \right).
+\label{eq:7}
+\end{equation}
+%
+One writes the snippet python code corresponding to~\eqref{eq:6} and~\eqref{eq:7} as
+%
+\begin{lstlisting}[language=Python]
+    
+def SVM_SGD(X,Y):
+  w = np.zeros(len(X[0]))
+  eta = 1
+  epochs = 100000
+  for epoch in range(1,n):
+   for i, x in enumerate(X):
+    if (Y[i]*np.dot(X[i], w)) < 1:
+	 w = w + eta * ( (X[i] * Y[i]) + (-2  *(1/epoch)* w) )
+	else:
+	 w = w + eta * (-2  *(1/epoch)* w)
+return w
+\end{lstlisting}
+%
+\end{document}
